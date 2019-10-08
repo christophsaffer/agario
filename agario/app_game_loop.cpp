@@ -107,6 +107,12 @@ void application::execute() {
       objectives[i] -= 1e-5f * (mouse_x - screen_width / 2);
       objectives[i + 1] -= 1e-5f * (mouse_y - screen_height / 2);
 
+      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) < 0.1) {
+        std::swap(objectives[i], objectives[objectives.size() - 2]);
+        std::swap(objectives[i + 1], objectives[objectives.size() - 1]);
+        objectives.resize(objectives.size() - 2);
+      }
+
       const float p_goal_x = (objectives[i] - view_min.x) /
                              (view_max.x - view_min.x) * screen_width;
       const float p_goal_y = (objectives[i + 1] - view_min.y) /
