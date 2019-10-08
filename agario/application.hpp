@@ -16,8 +16,8 @@ private:
   void compute_viewport();
 
 private:
-  int screen_width = 500;
-  int screen_height = 500;
+  int screen_width;
+  int screen_height;
 
   // viewport
   me::vector2f origin{};

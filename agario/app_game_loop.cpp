@@ -1,10 +1,27 @@
 #include <application.hpp>
+#include <random>
 
 #include <cmath>
 #include <iostream>
 
 void application::execute() {
   using namespace std;
+
+  float pos_x = 0;
+  float pos_y = 0;
+
+  float pos_goal_x = 1;
+  float pos_goal_y = -1;
+
+  vector<float> objectives(10);
+
+  random_device rd{};
+  mt19937 rng{rd()};
+  uniform_real_distribution<float> dist{-2, 2};
+
+  for (int i = 0; i < 10; ++i) {
+    objectives.push_back(dist(rng));
+  }
 
   int old_mouse_x = 0;
   int old_mouse_y = 0;
@@ -46,6 +63,20 @@ void application::execute() {
         case sf::Keyboard::Escape:
           window.close();
           break;
+          // case sf::Keyboard::Left:
+          //   pos_goal_x += 1e-2f;
+          //   break;
+          // case sf::Keyboard::Right:
+          //   pos_goal_x -= 1e-2f;
+          //   break;
+          // case sf::Keyboard::Up:
+          //   pos_goal_y += 1e-2f;
+          //
+          //   break;
+          // case sf::Keyboard::Down:
+          //   pos_goal_y -= 1e-2f;
+          //
+          //   break;
         }
         update = true;
         break;
@@ -62,10 +93,40 @@ void application::execute() {
     // loop iteration. Set it to true trigger the rendering process.
     if (update) {
       compute_viewport();
+      //
+      // pos_goal_x -= 1e-3f * (old_mouse_x - mouse_x);
+      // pos_goal_y -= 1e-3f * (old_mouse_y - mouse_y);
+
       update = false;
     }
 
     window.clear();
+
+    for (int i = 0; i < objectives.size(); i = i + 2) {
+
+      objectives[i] -= 1e-5f * (mouse_x - screen_width / 2);
+      objectives[i + 1] -= 1e-5f * (mouse_y - screen_height / 2);
+
+      const float p_goal_x = (objectives[i] - view_min.x) /
+                             (view_max.x - view_min.x) * screen_width;
+      const float p_goal_y = (objectives[i + 1] - view_min.y) /
+                             (view_max.y - view_min.y) * screen_height;
+
+      sf::CircleShape circle_goal(5);
+      circle_goal.setPosition(p_goal_x, p_goal_y);
+      circle_goal.setOrigin(5, 5);
+      window.draw(circle_goal);
+    }
+
+    const float p_x =
+        (pos_x - view_min.x) / (view_max.x - view_min.x) * screen_width;
+    const float p_y =
+        (pos_y - view_min.y) / (view_max.y - view_min.y) * screen_height;
+
+    sf::CircleShape circle(20);
+    circle.setPosition(p_x, p_y);
+    circle.setOrigin(20, 20);
+    window.draw(circle);
 
     // Double Buffering
     window.display();
