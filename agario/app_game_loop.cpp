@@ -13,15 +13,15 @@ void application::execute() {
   float pos_goal_x = 1;
   float pos_goal_y = -1;
 
-  float size_circle = 10;
+  float size_circle = 5;
 
-  vector<float> objectives(10);
+  vector<float> objectives(20);
 
   random_device rd{};
   mt19937 rng{rd()};
   uniform_real_distribution<float> dist{-2, 2};
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 20; ++i) {
     objectives.push_back(dist(rng));
   }
 
@@ -65,20 +65,6 @@ void application::execute() {
         case sf::Keyboard::Escape:
           window.close();
           break;
-          // case sf::Keyboard::Left:
-          //   pos_goal_x += 1e-2f;
-          //   break;
-          // case sf::Keyboard::Right:
-          //   pos_goal_x -= 1e-2f;
-          //   break;
-          // case sf::Keyboard::Up:
-          //   pos_goal_y += 1e-2f;
-          //
-          //   break;
-          // case sf::Keyboard::Down:
-          //   pos_goal_y -= 1e-2f;
-          //
-          //   break;
         }
         update = true;
         break;
@@ -109,11 +95,12 @@ void application::execute() {
       objectives[i] -= 1e-5f * (mouse_x - screen_width / 2);
       objectives[i + 1] -= 1e-5f * (mouse_y - screen_height / 2);
 
-      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) < 0.1) {
+      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) <
+          (size_circle * 1e-2f)) {
         std::swap(objectives[i], objectives[objectives.size() - 2]);
         std::swap(objectives[i + 1], objectives[objectives.size() - 1]);
         objectives.resize(objectives.size() - 2);
-        size_circle += 5;
+        size_circle += 2;
       }
 
       const float p_goal_x = (objectives[i] - view_min.x) /
