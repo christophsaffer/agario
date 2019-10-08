@@ -13,6 +13,8 @@ void application::execute() {
   float pos_goal_x = 1;
   float pos_goal_y = -1;
 
+  float size_circle = 10;
+
   vector<float> objectives(10);
 
   random_device rd{};
@@ -111,6 +113,7 @@ void application::execute() {
         std::swap(objectives[i], objectives[objectives.size() - 2]);
         std::swap(objectives[i + 1], objectives[objectives.size() - 1]);
         objectives.resize(objectives.size() - 2);
+        size_circle += 5;
       }
 
       const float p_goal_x = (objectives[i] - view_min.x) /
@@ -129,9 +132,9 @@ void application::execute() {
     const float p_y =
         (pos_y - view_min.y) / (view_max.y - view_min.y) * screen_height;
 
-    sf::CircleShape circle(20);
+    sf::CircleShape circle(size_circle);
     circle.setPosition(p_x, p_y);
-    circle.setOrigin(20, 20);
+    circle.setOrigin(size_circle, size_circle);
     window.draw(circle);
 
     // Double Buffering
