@@ -1,6 +1,5 @@
-libs =
-#import libs += libhello%lib{hello}
+import libs = sfml-graphics%lib{sfml-graphics}
 
-exe{agario}: {hxx ixx txx cxx}{**} $libs testscript
+exe{agario}: {hxx ixx txx cxx}{**} $libs
 
-cxx.poptions =+ "-I$out_root" "-I$src_root"
+cxx.poptions =+ "-I$src_base"

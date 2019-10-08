@@ -1,14 +1,13 @@
 #include <iostream>
+#include <string>
 
-int main (int argc, char* argv[])
-{
-  using namespace std;
+#include <application.hpp>
 
-  if (argc < 2)
-  {
-    cerr << "error: missing name" << endl;
-    return 1;
-  }
+using namespace std;
 
-  cout << "Hello, " << argv[1] << '!' << endl;
+int main() {
+  // Use RAII principle for application.
+  // Construct, initialize, execute and automatically destroy.
+  application app{500, 500};
+  app.execute();
 }
