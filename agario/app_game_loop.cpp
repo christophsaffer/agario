@@ -10,9 +10,6 @@ void application::execute() {
   float pos_x = 0;
   float pos_y = 0;
 
-  float pos_goal_x = 1;
-  float pos_goal_y = -1;
-
   float size_circle = 5;
 
   vector<float> objectives(20);
@@ -81,9 +78,6 @@ void application::execute() {
     // loop iteration. Set it to true trigger the rendering process.
     if (update) {
       compute_viewport();
-      //
-      // pos_goal_x -= 1e-3f * (old_mouse_x - mouse_x);
-      // pos_goal_y -= 1e-3f * (old_mouse_y - mouse_y);
 
       update = false;
     }
@@ -92,15 +86,28 @@ void application::execute() {
 
     for (int i = 0; i < objectives.size(); i = i + 2) {
 
-      objectives[i] -= 1e-5f * (mouse_x - screen_width / 2);
-      objectives[i + 1] -= 1e-5f * (mouse_y - screen_height / 2);
+      float velocity = 100;
 
-      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) <
-          (size_circle * 1e-2f)) {
+      float accel_x = mouse_x - screen_width / 2;
+      float accel_y = mouse_y - screen_height / 2;
+
+      if (abs(accel_x) > velocity) {
+        accel_x = velocity * accel_x / abs(accel_x);
+      }
+      if (abs(accel_y) > velocity) {
+        accel_y = velocity * accel_y / abs(accel_y);
+      }
+
+      objectives[i] -= 1e-5f * accel_x;
+      objectives[i + 1] -= 1e-5f * accel_y;
+
+      cout << "Objectives left: " << objectives.size() / 2 << "\n";
+
+      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) < 0.1) {
+
         std::swap(objectives[i], objectives[objectives.size() - 2]);
         std::swap(objectives[i + 1], objectives[objectives.size() - 1]);
         objectives.resize(objectives.size() - 2);
-        size_circle += 2;
       }
 
       const float p_goal_x = (objectives[i] - view_min.x) /
