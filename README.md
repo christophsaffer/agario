@@ -1,3 +1,5 @@
-# agario - C++ executable
+# Agario 
 
-TODO
+More details are coming.
+
+![screenshot](agario.png)
