@@ -1,4 +1,5 @@
 #include <application.hpp>
+#include <random>
 
 #include <cmath>
 #include <iostream>
@@ -6,11 +7,22 @@
 void application::execute() {
   using namespace std;
 
-  constexpr float speed = 1e-2;
   constexpr int num_grid_lines = 30;
 
   float pos_x = 0;
   float pos_y = 0;
+
+  float size_circle = 100;
+
+  vector<float> objectives(20);
+
+  random_device rd{};
+  mt19937 rng{rd()};
+  uniform_real_distribution<float> dist{-2, 2};
+
+  for (int i = 0; i < 20; ++i) {
+    objectives.push_back(dist(rng));
+  }
 
   int old_mouse_x = 0;
   int old_mouse_y = 0;
@@ -65,25 +77,17 @@ void application::execute() {
             case sf::Keyboard::Escape:
               window.close();
               break;
-            case sf::Keyboard::Left:
-              pos_x -= speed;
-              break;
-            case sf::Keyboard::Right:
-              pos_x += speed;
-              break;
-              // cout << pos_x << "\n";
-            case sf::Keyboard::Down:
-              pos_y += speed;
-              break;
-            case sf::Keyboard::Up:
-              pos_y -= speed;
-              break;
           }
           update = true;
           break;
       }
     }
 
+    // Move origin with left mouse button.
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+      origin = origin - mouse_move;
+      update = true;
+    }
     // Compute and render new view if needed.
     // The boolean variable 'update' makes sure this happens at most once per
     // loop iteration. Set it to true trigger the rendering process.
@@ -94,29 +98,72 @@ void application::execute() {
 
     window.clear();
 
+    float velocity = 100;
+
+    float accel_x = mouse_x - screen_width / 2;
+    float accel_y = mouse_y - screen_height / 2;
+
+    if (abs(accel_x) > velocity) {
+      accel_x = velocity * accel_x / abs(accel_x);
+    }
+    if (abs(accel_y) > velocity) {
+      accel_y = velocity * accel_y / abs(accel_y);
+    }
+
     // const me::vector2f x{0, 0};
-    for (int i = 0; i < grid.size(); ++i) {
+    for (int i = 0; i < grid.size(); i = i + 2) {
+      grid[i] -= 1e-5f * accel_x;
+      grid[i + 1] -= 1e-5f * accel_y;
+
       const float p_x =
-          (grid[2 * i] - view_min.x) / (view_max.x - view_min.x) * screen_width;
-      const float p_y = (grid[2 * i + 1] - view_min.y) /
-                        (view_max.y - view_min.y) * screen_height;
-      ++i;
-      // Move origin with left mouse button.
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        origin = origin - mouse_move;
-        update = true;
-      }
+          (grid[i] - view_min.x) / (view_max.x - view_min.x) * screen_width;
+      const float p_y = (grid[i + 1] - view_min.y) / (view_max.y - view_min.y) *
+                        screen_height;
 
       sf::Vertex line_x[] = {sf::Vertex(sf::Vector2f(0, p_y)),
-                             sf::Vertex(sf::Vector2f(500, p_y))};
+                             sf::Vertex(sf::Vector2f(screen_width, p_y))};
 
       sf::Vertex line_y[] = {sf::Vertex(sf::Vector2f(p_x, 0)),
-                             sf::Vertex(sf::Vector2f(p_x, 500))};
+                             sf::Vertex(sf::Vector2f(p_x, screen_height))};
 
       window.draw(line_x, 2, sf::Lines);
       window.draw(line_y, 2, sf::Lines);
     }
     // }
+
+    for (int i = 0; i < objectives.size(); i = i + 2) {
+      objectives[i] -= 1e-5f * accel_x;
+      objectives[i + 1] -= 1e-5f * accel_y;
+
+      cout << "Objectives left: " << objectives.size() / 2 << "\n";
+
+      if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) < 0.1) {
+        std::swap(objectives[i], objectives[objectives.size() - 2]);
+        std::swap(objectives[i + 1], objectives[objectives.size() - 1]);
+        objectives.resize(objectives.size() - 2);
+      }
+
+      const float p_goal_x = (objectives[i] - view_min.x) /
+                             (view_max.x - view_min.x) * screen_width;
+      const float p_goal_y = (objectives[i + 1] - view_min.y) /
+                             (view_max.y - view_min.y) * screen_height;
+
+      sf::CircleShape circle_goal(5);
+      circle_goal.setPosition(p_goal_x, p_goal_y);
+      circle_goal.setOrigin(5, 5);
+      window.draw(circle_goal);
+    }
+
+    const float center_x =
+        (0 - view_min.x) / (view_max.x - view_min.x) * screen_width;
+    const float center_y =
+        (0 - view_min.y) / (view_max.y - view_min.y) * screen_height;
+
+    sf::CircleShape circle(size_circle);
+    circle.setPosition(center_x, center_y);
+    circle.setOrigin(size_circle, size_circle);
+    window.draw(circle);
+
     // Double Buffering
     window.display();
 
