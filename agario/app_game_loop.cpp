@@ -12,16 +12,21 @@ void application::execute() {
   float pos_x = 0;
   float pos_y = 0;
 
-  float size_circle = 100;
+  float size_circle = 20;
 
   vector<float> objectives(20);
 
   random_device rd{};
   mt19937 rng{rd()};
-  uniform_real_distribution<float> dist{-2, 2};
+  uniform_real_distribution<float> dist{-1, 1};
 
   for (int i = 0; i < 20; ++i) {
-    objectives.push_back(dist(rng));
+    float randn = dist(rng);
+    if (randn <= 0) {
+      objectives.push_back(dist(rng) - 1);
+    } else {
+      objectives.push_back(dist(rng) + 1);
+    }
   }
 
   int old_mouse_x = 0;
@@ -57,29 +62,29 @@ void application::execute() {
     while (window.pollEvent(event)) {
       // Decide what to do if certain events are happening.
       switch (event.type) {
-        case sf::Event::Closed:
+      case sf::Event::Closed:
+        window.close();
+        break;
+
+      case sf::Event::Resized:
+        resize(event.size.width, event.size.height);
+        update = true;
+        break;
+
+      case sf::Event::MouseWheelMoved:
+        view_dim.y *= exp(-event.mouseWheel.delta * 0.05f);
+        view_dim.y = clamp(view_dim.y, 1e-6f, 6.f);
+        update = true;
+        break;
+
+      case sf::Event::KeyPressed:
+        switch (event.key.code) {
+        case sf::Keyboard::Escape:
           window.close();
           break;
-
-        case sf::Event::Resized:
-          resize(event.size.width, event.size.height);
-          update = true;
-          break;
-
-        case sf::Event::MouseWheelMoved:
-          view_dim.y *= exp(-event.mouseWheel.delta * 0.05f);
-          view_dim.y = clamp(view_dim.y, 1e-6f, 6.f);
-          update = true;
-          break;
-
-        case sf::Event::KeyPressed:
-          switch (event.key.code) {
-            case sf::Keyboard::Escape:
-              window.close();
-              break;
-          }
-          update = true;
-          break;
+        }
+        update = true;
+        break;
       }
     }
 
