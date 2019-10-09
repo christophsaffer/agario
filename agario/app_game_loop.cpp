@@ -9,8 +9,8 @@ void application::execute() {
 
   constexpr int num_grid_lines = 30;
 
-  float pos_x = 0;
-  float pos_y = 0;
+  float center_pos_x = 0;
+  float center_pos_y = 0;
 
   float size_circle = 20;
 
@@ -37,6 +37,9 @@ void application::execute() {
   float end_pos_x = 10;
   float start_pos_y = -10;
   float end_pos_y = 10;
+
+  float pos_x;
+  float pos_y;
 
   for (int i = 0; i < num_grid_lines; ++i) {
     pos_x = start_pos_x + i * (end_pos_x - start_pos_x) / num_grid_lines;
@@ -115,6 +118,14 @@ void application::execute() {
       accel_y = velocity * accel_y / abs(accel_y);
     }
 
+    if (-abs(center_pos_x) < start_pos_x) {
+      accel_x = -accel_x * 1000;
+    }
+
+    if (-abs(center_pos_y) < start_pos_y) {
+      accel_y = -accel_y * 1000;
+    }
+
     // const me::vector2f x{0, 0};
     for (int i = 0; i < grid.size(); i = i + 2) {
       grid[i] -= 1e-5f * accel_x;
@@ -140,7 +151,7 @@ void application::execute() {
       objectives[i] -= 1e-5f * accel_x;
       objectives[i + 1] -= 1e-5f * accel_y;
 
-      cout << "Objectives left: " << objectives.size() / 2 << "\n";
+      // cout << "Objectives left: " << objectives.size() / 2 << "\n";
 
       if (sqrt(pow(objectives[i], 2) + pow(objectives[i + 1], 2)) < 0.1) {
         std::swap(objectives[i], objectives[objectives.size() - 2]);
@@ -158,6 +169,11 @@ void application::execute() {
       circle_goal.setOrigin(5, 5);
       window.draw(circle_goal);
     }
+
+    center_pos_x -= 1e-5f * accel_x;
+    center_pos_y -= 1e-5f * accel_y;
+
+    cout << "Pos in Grid: " << center_pos_x << ", " << center_pos_y << "\n";
 
     const float center_x =
         (0 - view_min.x) / (view_max.x - view_min.x) * screen_width;
