@@ -28,6 +28,6 @@ private:
 
   // rendering
   sf::RenderWindow window{sf::VideoMode(screen_width, screen_height),
-                          "Fractal Render"};
+                          "Agar.io EXTREME"};
   bool update = true;
 };

@@ -20,7 +20,7 @@ void application::execute() {
   mt19937 rng{rd()};
   uniform_real_distribution<float> dist{-1, 1};
 
-  for (int i = 0; i < 20; ++i) {
+  for (int i = 0; i < 60; ++i) {
     float randn = dist(rng);
     if (randn <= 0) {
       objectives.push_back(dist(rng) - 1);
