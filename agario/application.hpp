@@ -14,6 +14,8 @@ private:
   void resize();
   void resize(int w, int h);
   void compute_viewport();
+  std::array<float, 2> compute_pixel(float real_x, float real_y);
+  float scale_length(const float distance);
 
 private:
   int screen_width;
@@ -25,6 +27,9 @@ private:
       2.0f * me::vector2f{1, static_cast<float>(screen_width) / screen_height};
   me::vector2f view_min;
   me::vector2f view_max;
+
+  // scale factor
+  float scale_factor;
 
   // rendering
   sf::RenderWindow window{sf::VideoMode(screen_width, screen_height),
