@@ -1,14 +1,16 @@
 #include <application.hpp>
-#include <array>
-#include <random>
+#include <player.hpp>
 
+#include <array>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 void application::execute() {
   using namespace std;
 
-  float size_circle = 0.05;
+  // player player1();
+  // float size_circle = 0.05;
   float size_obj = 0.01;
 
   vector<float> fruits(20);
@@ -54,26 +56,26 @@ void application::execute() {
     while (window.pollEvent(event)) {
       // Decide what to do if certain events are happening.
       switch (event.type) {
-      case sf::Event::Closed:
-        window.close();
-        break;
-
-      case sf::Event::Resized:
-        resize(event.size.width, event.size.height);
-        break;
-
-      case sf::Event::MouseWheelMoved:
-        view_dim.y *= exp(-event.mouseWheel.delta * 0.05f);
-        view_dim.y = clamp(view_dim.y, 1e-6f, 6.f);
-        break;
-
-      case sf::Event::KeyPressed:
-        switch (event.key.code) {
-        case sf::Keyboard::Escape:
+        case sf::Event::Closed:
           window.close();
           break;
-        }
-        break;
+
+        case sf::Event::Resized:
+          resize(event.size.width, event.size.height);
+          break;
+
+        case sf::Event::MouseWheelMoved:
+          view_dim.y *= exp(-event.mouseWheel.delta * 0.05f);
+          view_dim.y = clamp(view_dim.y, 1e-6f, 6.f);
+          break;
+
+        case sf::Event::KeyPressed:
+          switch (event.key.code) {
+            case sf::Keyboard::Escape:
+              window.close();
+              break;
+          }
+          break;
       }
     }
     // Move origin with left mouse button.
@@ -84,19 +86,20 @@ void application::execute() {
     window.clear();
 
     // compute velocity
-    float velocity = 200;
-    float veloc_x = mouse_x - screen_width / 2;
-    float veloc_y = mouse_y - screen_height / 2;
-    if (abs(veloc_x) > velocity) {
-      veloc_x = velocity * veloc_x / abs(veloc_x);
-    }
-    if (abs(veloc_y) > velocity) {
-      veloc_y = velocity * veloc_y / abs(veloc_y);
-    }
 
+    player1.compute_velocity(mouse_x, mouse_y, screen_width, screen_height);
+    /* float velocity = 200;
+     float veloc_x = mouse_x - screen_width / 2;
+     float veloc_y = mouse_y - screen_height / 2;
+     if (abs(veloc_x) > velocity) {
+       veloc_x = velocity * veloc_x / abs(veloc_x);
+     }
+     if (abs(veloc_y) > velocity) {
+       veloc_y = velocity * veloc_y / abs(veloc_y);
+     }
+ */
     // draw grid
     for (int i = 0; i < grid.size(); i = i + 2) {
-
       array<float, 2> start_hor_line = compute_pixel(start_pos_x, grid[i + 1]);
       array<float, 2> end_hor_line = compute_pixel(end_pos_x, grid[i + 1]);
       array<float, 2> start_vert_line = compute_pixel(grid[i], start_pos_y);
@@ -116,14 +119,14 @@ void application::execute() {
     // }
 
     for (int i = 0; i < fruits.size(); i = i + 2) {
-
       if (sqrt(pow(fruits[i] - origin.x, 2) +
-               pow(fruits[i + 1] - origin.y, 2)) < size_obj + size_circle) {
+               pow(fruits[i + 1] - origin.y, 2)) <
+          size_obj + player1.circle_sizes[0]) {
         std::swap(fruits[i], fruits[fruits.size() - 2]);
         std::swap(fruits[i + 1], fruits[fruits.size() - 1]);
         fruits.resize(fruits.size() - 2);
-        size_circle += 0.01;
-        velocity -= 10;
+        player1.circle_sizes[0] += 0.01;
+        player1.max_velocity -= 10;
       }
 
       array<float, 2> pos_objective = compute_pixel(fruits[i], fruits[i + 1]);
@@ -135,20 +138,23 @@ void application::execute() {
       window.draw(circle_objective);
     }
 
-    origin.x += 1e-5f * veloc_x;
-    origin.y += 1e-5f * veloc_y;
+    origin.x += 1e-5f * player1.velocity[0];
+    origin.y += 1e-5f * player1.velocity[1];
     compute_viewport();
 
     array<float, 2> center = compute_pixel(origin.x, origin.y);
 
     cout << origin.x << ", " << origin.y << "\n";
 
-    float radius = scale_length(size_circle);
+    // loop for multiple circles for example after split
+    for (int i = 0; i < player1.circle_sizes.size(); ++i) {
+      float radius = scale_length(player1.circle_sizes[i]);
 
-    sf::CircleShape circle(radius);
-    circle.setPosition(center[0], center[1]);
-    circle.setOrigin(radius, radius);
-    window.draw(circle);
+      sf::CircleShape circle(radius);
+      circle.setPosition(center[0], center[1]);
+      circle.setOrigin(radius, radius);
+      window.draw(circle);
+    }
 
     // Double Buffering
     window.display();

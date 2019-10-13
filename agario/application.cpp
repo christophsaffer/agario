@@ -22,7 +22,6 @@ void application::compute_viewport() {
 }
 
 std::array<float, 2> application::compute_pixel(float real_x, float real_y) {
-
   std::array<float, 2> pixel;
   pixel[0] = (real_x - view_min.x) / (view_max.x - view_min.x) * screen_width;
   pixel[1] = (real_y - view_min.y) / (view_max.y - view_min.y) * screen_height;
