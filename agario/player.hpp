@@ -7,7 +7,7 @@
 class player {
  public:
   player(){};
-  player(float s, std::array<float, 2> p) : circle_sizes{s}, origin{p} {};
+  player(float s, std::array<float, 2> p) : size_circles{s}, position{p} {};
 
   ~player() = default;
 
@@ -18,9 +18,20 @@ class player {
                                         const float& screen_width,
                                         const float& screen_height);
 
+  void set_name(const std::string& n) { name = n; }
+
+  bool player_alive(bool a) {
+    alive = a;
+    return alive;
+  }
+
  public:
   float max_velocity{200};
-  std::array<float, 2> origin{0, 0};
+  std::array<float, 2> position{0, 0};
   std::array<float, 2> velocity{0, 0};
-  std::vector<float> circle_sizes = {0.05};
+  std::vector<float> size_circles = {0.05};
+
+ private:
+  std::string name = "nameless";
+  bool alive = true;
 };

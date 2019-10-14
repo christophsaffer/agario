@@ -121,11 +121,11 @@ void application::execute() {
     for (int i = 0; i < fruits.size(); i = i + 2) {
       if (sqrt(pow(fruits[i] - origin.x, 2) +
                pow(fruits[i + 1] - origin.y, 2)) <
-          size_obj + player1.circle_sizes[0]) {
+          size_obj + player1.size_circles[0]) {
         std::swap(fruits[i], fruits[fruits.size() - 2]);
         std::swap(fruits[i + 1], fruits[fruits.size() - 1]);
         fruits.resize(fruits.size() - 2);
-        player1.circle_sizes[0] += 0.01;
+        player1.size_circles[0] += 0.01;
         player1.max_velocity -= 10;
       }
 
@@ -147,8 +147,8 @@ void application::execute() {
     cout << origin.x << ", " << origin.y << "\n";
 
     // loop for multiple circles for example after split
-    for (int i = 0; i < player1.circle_sizes.size(); ++i) {
-      float radius = scale_length(player1.circle_sizes[i]);
+    for (int i = 0; i < player1.size_circles.size(); ++i) {
+      float radius = scale_length(player1.size_circles[i]);
 
       sf::CircleShape circle(radius);
       circle.setPosition(center[0], center[1]);
